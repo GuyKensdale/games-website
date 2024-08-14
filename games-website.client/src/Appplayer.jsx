@@ -30,11 +30,9 @@ function AddPlayer() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}></input>
             <button onClick={handleAddDate}>Add player</button>
-            <h3>Money towards next game!</h3>
-            <p>£££</p>
-
         </div>
     );
 }
 
 export default AddPlayer;
+//branch test
