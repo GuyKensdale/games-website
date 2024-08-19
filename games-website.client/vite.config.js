@@ -6,18 +6,18 @@ import path from 'path';
 import child_process from 'child_process';
 import { env } from 'process';
 
-
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
+const baseFolder = env.APPDATA !== undefined && env.APPDATA !== ''
+    ? `${env.APPDATA}/ASP.NET/https`
+    : `${env.HOME}/.aspnet/https`;
 
 const certificateName = "games-website.client";
 const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
+// Only generate certificates in development mode
+const isDevelopment = env.NODE_ENV === 'development';
 
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+if (isDevelopment && (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath))) {
     if (0 !== child_process.spawnSync('dotnet', [
         'dev-certs',
         'https',
@@ -31,10 +31,11 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7130';
-
+const target = env.ASPNETCORE_HTTPS_PORT
+    ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
+    : env.ASPNETCORE_URLS
+        ? env.ASPNETCORE_URLS.split(';')[0]
+        : 'https://localhost:7130';
 
 export default defineConfig({
     plugins: [plugin()],
@@ -51,9 +52,12 @@ export default defineConfig({
             }
         },
         port: 5173,
-        https: {
+        https: isDevelopment ? {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
-        }
+        } : undefined
+    },
+    build: {
+        outDir: 'dist'  // Ensure this matches your Netlify publish directory
     }
 });
