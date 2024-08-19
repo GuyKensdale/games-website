@@ -55,8 +55,7 @@ function App() {
             <button className="submitButton" onClick={() => navigate("/addplayer")}>
                 Add New Players
             </button>
-            <h3>Money towards next game!</h3>
-            <p>£££</p>
+        
         </div>
     );
 }
